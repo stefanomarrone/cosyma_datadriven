@@ -1,5 +1,5 @@
 from datetime import datetime
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter
 from typing import List
 
 router = APIRouter()

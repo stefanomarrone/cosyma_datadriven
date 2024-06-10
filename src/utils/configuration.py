@@ -28,6 +28,8 @@ class Configuration(metaclass=Singleton):
             self.put('mongo_port', int(temp))
             temp = reader['server']['applicationport']
             self.put('applicationport', int(temp))
+            temp = reader['server']['applicationaddress']
+            self.put('applicationip', temp)
         except Exception as s:
             print(s)
 

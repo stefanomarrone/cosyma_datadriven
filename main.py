@@ -7,10 +7,11 @@ from src.utils.configuration import Configuration
 def main(inifilename):
     conf = Configuration(inifilename)
     applicationport = conf.get('applicationport')
+    ipaddress = conf.get('applicationip')
     app = FastAPI()
     app.include_router(router)
     router.configuration = conf
-    uvicorn.run(app, port=applicationport)
+    uvicorn.run(app, host=ipaddress, port=applicationport)
 
 
 if __name__ == "__main__":
