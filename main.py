@@ -1,7 +1,7 @@
 import uvicorn
 import sys
 from fastapi import FastAPI
-from src.core.routers import router
+from src.routers import router
 from src.utils.configuration import Configuration
 
 def main(inifilename):
