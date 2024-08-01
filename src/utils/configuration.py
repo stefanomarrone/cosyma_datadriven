@@ -59,7 +59,8 @@ class Configuration(metaclass=Singleton):
             temp = reader['model']['numfeat']
             self.put('numFeat', int(temp))
             # section - preprocessing
-            temp = reader['preprocessing']['newRULNm']
+            temp = reader['preprocessing']['namefeat']
+            temp = temp.split(',')
             self.put('namefeat', temp)
             temp = reader['preprocessing']['newrulnm']
             self.put('newRULNm', temp)

@@ -19,7 +19,7 @@ class PredictionResults():
 
     def __init__(self, predicted_rul, training_results):
         self.dictionary = dict()
-        labels = PredictionResults.lookup_table.keys()
+        labels = list(PredictionResults.lookup_table.keys())
         flag = False
         counter = 0
         while not flag and (counter < len(labels)):

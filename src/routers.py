@@ -4,39 +4,46 @@ from typing import List
 
 from src.core.models import TrainingRequest
 from src.core.training import model_train
-from src.io.results import PredictionResults
+from src.io.results import PredictionResults, TrainingResult
 
 router = APIRouter()
 
-@router.post("/train")
-def train(t_req: TrainingRequest) -> dict:
-    conf = router.configuration
-    trained_model = model_train(t_req.modelid, t_req.modelversion, t_req.trolleyids, t_req.start, t_req.end, conf)
-    mongoport = conf.get('mongo_port')
-    mongoip = conf.get('mongo_address')
-    mongourl = ('http://' + mongoip + ':' + str(mongoport) + '/ddmodels?identifier=' + str(t_req.modelid) + '&version=' + str(t_req.modelversion))
+def inner_train(treq, configuration, csv_filename):
+    trained_model = model_train(treq.modelid, treq.modelversion, treq.trolleyids, treq.start, treq.end,
+                                configuration, csv_filename)
+    mongoport = configuration.get('mongo_port')
+    mongoip = configuration.get('mongo_address')
+    mongourl = ('http://' + mongoip + ':' + str(mongoport) + '/ddmodels?identifier=' + str(treq.modelid) +
+                '&version=' + str(treq.modelversion))
     #todo: pickle the trained model and flush
     handler = open('modelfitted.keras', 'rb') ##todo: da cambiare
     files = {"file": (handler.name, handler, "multipart/form-data")}
     resp = requests.post(url=mongourl, files=files)
     return resp.json()['success']
 
-@router.get("/train_stupid")
-def train(modelid: int, modelversion: int, trolleyids: List[str]) -> dict:
-    return {'success': True}
 
-@router.get("/train_service")
-def train(modelid: int, modelversion: int, trolleyids: List[str],
-          start: datetime, end: datetime, file: UploadFile = File(...)) -> dict:
-    #todo call the function making the training
-    return {"success": True}
 
-@router.get("/predict")
-def postddmodel(modelid: int, modelversion: int, trolleyid: str, start: datetime, end: datetime) -> dict:
+@router.post("/train")
+def train(t_req: TrainingRequest) -> dict:
+    conf = router.configuration
+    csv_filename = None
+    retval = inner_train(t_req, conf, csv_filename)
+    return retval
 
-    predicted_rul = 0
-    std = 0
+@router.post("/train_service")
+def train(t_req: TrainingRequest) -> dict:
+    conf = router.configuration
+    csv_filename = t_req.csv_no_influx
+    retval = inner_train(t_req, conf, csv_filename)
+    return retval
+
+@router.post("/predict")
+def postddmodel(t_req: TrainingRequest) -> dict:
+
+    predicted_rul = 100
     #todo call the function making the prediction
-    results = PredictionResults()
+    tr = TrainingResult()
+    tr.add('less-than-1-hour', 105, 120, 140)
+    results = PredictionResults(predicted_rul, tr)
     #todo: bisogna usare i predictiedresutls per caricare il dizionario giusto
     return results.getDictionary()

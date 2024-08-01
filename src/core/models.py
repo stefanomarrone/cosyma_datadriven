@@ -9,3 +9,4 @@ class TrainingRequest(BaseModel):
     trolleyids : List[str]
     start: datetime.datetime
     end: datetime.datetime
+    csv_no_influx: str
