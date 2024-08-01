@@ -1,23 +1,29 @@
 from datetime import datetime
-from fastapi import APIRouter, UploadFile, File, requests
+from fastapi import APIRouter, UploadFile, File
+import requests
 from typing import List
+import tempfile
 
 from src.core.models import TrainingRequest
 from src.core.training import model_train
-from src.io.results import PredictionResults, TrainingResult
+from src.io.results import PredictionResults, TestingResult
+from src.io.storing import TrainedModel
 
 router = APIRouter()
 
 def inner_train(treq, configuration, csv_filename):
-    trained_model = model_train(treq.modelid, treq.modelversion, treq.trolleyids, treq.start, treq.end,
-                                configuration, csv_filename)
+    trained_model = model_train(treq.trolleyids, treq.start, treq.end, configuration, csv_filename)
     mongoport = configuration.get('mongo_port')
     mongoip = configuration.get('mongo_address')
     mongourl = ('http://' + mongoip + ':' + str(mongoport) + '/ddmodels?identifier=' + str(treq.modelid) +
                 '&version=' + str(treq.modelversion))
-    #todo: pickle the trained model and flush
-    handler = open('modelfitted.keras', 'rb') ##todo: da cambiare
-    files = {"file": (handler.name, handler, "multipart/form-data")}
+    result = TrainedModel(trained_model)
+    #todo: aprire un file temporaneo
+    tmp = tempfile.NamedTemporaryFile()
+    with open(tmp.name, 'wb') as f:
+        f.write(result.serialize())
+    handler = open(tmp.name, 'rb')
+    files = {"file": (tmp.name, handler, "multipart/form-data")}
     resp = requests.post(url=mongourl, files=files)
     return resp.json()['success']
 
@@ -42,7 +48,7 @@ def postddmodel(t_req: TrainingRequest) -> dict:
 
     predicted_rul = 100
     #todo call the function making the prediction
-    tr = TrainingResult()
+    tr = TestingResult()
     tr.add('less-than-1-hour', 105, 120, 140)
     results = PredictionResults(predicted_rul, tr)
     #todo: bisogna usare i predictiedresutls per caricare il dizionario giusto

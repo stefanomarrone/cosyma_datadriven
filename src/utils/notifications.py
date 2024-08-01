@@ -2,7 +2,7 @@ def send_notification(message):
     pass
 
 def llog(message):
-    pass
+    print(message)
 
 '''
 def send_notification(message):

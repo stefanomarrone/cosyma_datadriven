@@ -35,7 +35,7 @@ class PredictionResults():
         return self.dictionary
 
 
-class TrainingResult():
+class TestingResult():
     def __init__(self):
         self.dictionary = dict()
 
