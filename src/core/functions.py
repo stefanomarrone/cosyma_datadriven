@@ -1014,7 +1014,6 @@ def dataEncoding(data, ColExcpt, colToSave):
             if colNm == colToSave:
                 pandasCol = col.collect().to_pandas()
                 for name in range(len(encCol)):
-                    #idCol[str(encCol[name])] = pandasCol.iloc[name,0] todo: do delete
                     idCol[pandasCol.iloc[name,0]] = str(encCol[name])
             colNamesWithoutEncCol = [nm for nm in columns if nm != colNm]
             data = data.select(colNamesWithoutEncCol).with_columns(**{colNm : pl.Series(colNm,encCol)})

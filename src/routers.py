@@ -18,7 +18,6 @@ def inner_train(treq, configuration, csv_filename):
     mongourl = ('http://' + mongoip + ':' + str(mongoport) + '/ddmodels?identifier=' + str(treq.modelid) +
                 '&version=' + str(treq.modelversion))
     result = TrainedModel(trained_model)
-    #todo: aprire un file temporaneo
     tmp = tempfile.NamedTemporaryFile()
     with open(tmp.name, 'wb') as f:
         f.write(result.serialize())
