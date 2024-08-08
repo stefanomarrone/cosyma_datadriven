@@ -193,4 +193,4 @@ def model_train(trolleyids, Start, Stop, configuration, auxiliary_csv_filename):
     else:
         llog('ERRORE NELLA FASE')
         send_notification('ERRORE NELLA FASE')
-    return best   #### best[0] è una stringa, contiene il percorso per raggiungere il modello addestrato e poterlo richiamare
+    return best, cartId   #### best[0] è una stringa, contiene il percorso per raggiungere il modello addestrato e poterlo richiamare

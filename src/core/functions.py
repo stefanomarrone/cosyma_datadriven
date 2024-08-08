@@ -750,28 +750,18 @@ def Preprocessing(data):
 
 
 def Preprocessing_test(data):
-    
-    lazyData = data 
-    
-    #row
+    lazyData = data
     lazyData = lazyData.filter(~pl.all_horizontal(pl.all().is_null()))
-    #col
-    nullCountQuery = lazyData.select(pl.col(name).null_count() for name in lazyData.columns)
+    nullCountQuery = lazyData.select(pl.col(name).null_count() for name in lazyData.collect_schema().names())
     data = nullCountQuery.collect().to_pandas()
     shape = lazyData.collect().shape[0]
     colName = [name for name in data.columns if data[name].iloc[0] != shape]
     lazyData = lazyData.select(pl.col(name) for name in colName)
-
-
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         results = SampleViewCreate_test(lazyData)
     result = pl.LazyFrame(results)
     results = MeasFaultSplit(result)
-    ### saving into csv format
-    #results.to_csv(savingCSVPath)
-    #print('work done.')
-    #results = results.select(pl.col(Nm) for Nm in results.columns if Nm != 'Fault')
     return results
 
 
