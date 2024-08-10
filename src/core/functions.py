@@ -734,20 +734,15 @@ def Preprocessing(data):
     shape = lazyData.collect().shape[0]
     colName = [name for name in data.columns if data[name].iloc[0] != shape]
     lazyData = lazyData.select(pl.col(name) for name in colName)
-    
-    
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         results = SampleViewCreate(lazyData)
-    
     result = pl.LazyFrame(results)
     results = MeasFaultSplit(result)
     ### saving into csv format
     #results.to_csv(savingCSVPath)
     #print('work done.')
     return results
-
-
 
 def Preprocessing_test(data):
     lazyData = data
@@ -836,11 +831,11 @@ def SecondRestruct(dataset, cartIdSet, engineId, timeId, RUL_Id, oldNm):
             flag = True
             index = 0
             while flag == True:
-                if( (DATA.iloc[index,0] == cartName) | (str(DATA.iloc[index,0]) == str(cartName)) ):
+                if (DATA.iloc[index,0] == cartName) | (str(DATA.iloc[index,0]) == str(cartName)):
                     newCartNames.append(NEW_DATA.iloc[index,0])
                     flag = False
-                else:
-                    index = index + 1
+                index += 1
+                flag = flag and index < rangeStop
         newCartNames = pd.DataFrame(newCartNames)
         newCartNames = pl.LazyFrame(newCartNames)
         newCartNames = newCartNames.rename({"0": 'New Cart Id - Norm'})
@@ -1414,8 +1409,9 @@ def dropNAN_(data):
 
 ##### CART FILTERING #####
 def cart_filter(cartData, serial, dataset, size):
+    debug = dataset.collect().to_pandas()
     try:
-        subData = cartData.filter(pl.col('Old Cart Id') == serial)
+        subData = cartData.filter(pl.col('Old Cart Id').is_in(serial))
         subData = subData.collect()
         subData = subData.to_pandas()
         if len(subData.shape) == 2:
@@ -1424,8 +1420,8 @@ def cart_filter(cartData, serial, dataset, size):
             newId = float(subData.iloc[0])
         #print(newId)
         #print(dataset.select(pl.col('sensor measurement 1')).collect())
-        subData = dataset.filter(pl.col('sensor measurement 1') == newId)
-        subData = subData.collect()
+        # subData = dataset.filter(pl.col('sensor measurement 1') == newId)
+        subData = dataset.collect()
         subData = subData.to_pandas()
         subData = subData.iloc[-size:,:]
         subData = pl.LazyFrame(subData)

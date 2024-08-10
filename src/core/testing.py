@@ -5,7 +5,7 @@ from src.utils.notifications import send_notification, llog
 
 ########## IMPORTING NECESSARY LIBRARIES - END ##########
 
-def testing(configuration,model,ranges,cartId,serial,Start,Stop,auxiliary_csv_filename = None):
+def testing(configuration, model, cartId, serial, Start, Stop, auxiliary_csv_filename=None):
     print('LETTURA CONFIGURAZIONE:')
     url = configuration.get('influx_url')
     token = configuration.get('influx_tok')
@@ -14,27 +14,27 @@ def testing(configuration,model,ranges,cartId,serial,Start,Stop,auxiliary_csv_fi
     rangeInMin = configuration.get('rangeinmin')
     dropNAN = configuration.get('dropnan')
     nameFeat = configuration.get('namefeat')
-    numFeat = configuration.get('numFeat')
     numLSTMLay = configuration.get('numlstmlay')
     numGRULay = configuration.get('numGRULay')
     batchSize = configuration.get('batchSize')
     units = configuration.get('units')
-    learning_rate = configuration.get('learning_rate')
     dropRate = configuration.get('dropRate')
-    numEpoc = configuration.get('numEpoc')
     engineId = configuration.get('newEngineNm')
     timeId = configuration.get('newTimeNm')
     RUL_Id =configuration.get('newRULNm')
     oldNames = [nameFeat[0],'engine','time', nameFeat[1], nameFeat[2], nameFeat[3], nameFeat[4], nameFeat[5]]
     maxRUL = configuration.get('maxRUL')
     filterRUL = configuration.get('threshRUL')
+    size = configuration.get('size')
+    numFilter = configuration.get('numFilter')
+    step = configuration.get('step')
+    possConfig = CreatePossConfig(numLSTMLay, numGRULay, units, batchSize, dropRate)
+    numFeat = configuration.get('numFeat')
+    learning_rate = configuration.get('learning_rate')
+    numEpoc = configuration.get('numEpoc')
     percentOfSplit = configuration.get('percentOfSplit') / 100
     savedWindow = configuration.get('savedWindow')
-    size = configuration.get('size')
-    step = configuration.get('step')
-    numFilter = configuration.get('numFilter')
     modelSize = size // numFilter
-    possConfig = CreatePossConfig(numLSTMLay, numGRULay, units, batchSize, dropRate)
     numConfigs = len(configurations(possConfig))
 
     using_influx_flag = auxiliary_csv_filename == None
@@ -50,6 +50,7 @@ def testing(configuration,model,ranges,cartId,serial,Start,Stop,auxiliary_csv_fi
     results = Preprocessing_test(df)
     print('CONCLUSO')
 
+    serial = [serial]
     results = results.filter(pl.col("cart Id").is_in(serial))
     print('GESTIONE VARIABILI CATEGORICHE:')
     #### ENCODING CATEGORICAL VARIABLES AND FIX TIME ISSUES ####
@@ -105,18 +106,7 @@ def testing(configuration,model,ranges,cartId,serial,Start,Stop,auxiliary_csv_fi
         y_pred = model.predict(x_test)
         y_pred = y_pred[:,-1]    
         y_pred = y_pred[0] * maxRUL
-        
-
-        if y_pred >= (3600*3):
-            dev = ranges[0]
-        if ( (y_pred <= (3600*3)) & (y_pred >= (3600)) ):
-            dev = ranges[1]
-        if y_pred <= (3600):
-            dev = ranges[2]
-        
-        
-        
-        return y_pred, dev
+        return y_pred
     except Exception as e:
         error_message = traceback.format_exc()
         print("Errore catturato:")

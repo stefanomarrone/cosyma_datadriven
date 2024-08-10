@@ -7,7 +7,7 @@ import tempfile
 from src.core.models import TrainingRequest
 from src.core.testing import testing
 from src.core.training import model_train
-from src.io.results import PredictionResults, TestingResult
+from src.io.results import PredictionResults, TrainingResults
 from src.io.storing import TrainedModel
 
 router = APIRouter()
@@ -62,15 +62,13 @@ def postddmodel(t_req: TrainingRequest) -> dict:
     fileContent = reader.read()
     trainedmodel = TrainedModel()
     trainedmodel.load(fileContent)
-    # todo: invoking the proper function
     mdl = trainedmodel.getModel()
     cid = trainedmodel.getCartID()
     rng = trainedmodel.getRanges()
     #todo: ipotesi di prediction effettuata su un solo carrello per volta. Il carrello deve essere presente nella
     # lista di training e il carrello va passato come lista con un solo elemento.
-    results = testing(conf,mdl,rng,cid,t_req.trolleyids[0],t_req.start,t_req.end,t_req.csv_no_influx)
-
-    tr = TestingResult()
-    results = PredictionResults(0, tr) # todo: aggiustare il tutto
-    #todo: bisogna usare i predictiedresutls per caricare il dizionario giusto
-    return results.getDictionary()
+    rul = testing(conf, mdl, cid, t_req.trolleyids[0], t_req.start, t_req.end, t_req.csv_no_influx)
+    tr = TrainingResults(rng)
+    results = PredictionResults(rul, tr)
+    retval = results.getDictionary()
+    return retval

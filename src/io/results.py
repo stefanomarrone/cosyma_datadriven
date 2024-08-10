@@ -35,9 +35,12 @@ class PredictionResults():
         return self.dictionary
 
 
-class TestingResult():
-    def __init__(self):
+class TrainingResults():
+    def __init__(self, ranges):
         self.dictionary = dict()
+        labels = ['more-than-3-hours', 'between-3-hours-and-1-hour', 'less-than-1-hour']
+        for label, range in zip(labels,ranges):
+            self.add(label, range[0.1], range[0.05], range[0.01])
 
     def getRow(self, label):
         return self.dictionary[label]
