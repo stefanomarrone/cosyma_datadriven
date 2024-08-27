@@ -1893,28 +1893,14 @@ def Bootstrapping(errori):
         for _ in range(n_iterations):
             sample = np.random.choice(errori, size=n_size, replace=True)
             bootstrapped_means.append(np.mean(sample))
-        
+        boot_mean = sum(bootstrapped_means) / len(bootstrapped_means)
         # Calcola intervalli di confidenza
         ranges = dict()
-        
-        alpha = 0.10
-        lower_bound = np.percentile(bootstrapped_means, alpha/2*100)
-        upper_bound = np.percentile(bootstrapped_means, (1-alpha/2)*100)
-        ranges[alpha] = [lower_bound, upper_bound]
-        
-        
-        alpha = 0.05
-        lower_bound = np.percentile(bootstrapped_means, alpha/2*100)
-        upper_bound = np.percentile(bootstrapped_means, (1-alpha/2)*100)
-        ranges[alpha] = [lower_bound, upper_bound]
-        
-        
-        alpha = 0.01
-        lower_bound = np.percentile(bootstrapped_means, alpha/2*100)
-        upper_bound = np.percentile(bootstrapped_means, (1-alpha/2)*100)
-        ranges[alpha] = [lower_bound, upper_bound]
-        
-        
+        alphas = [0.1, 0.05, 0.01]
+        for alpha in alphas:
+            lower_bound = np.percentile(bootstrapped_means, (alpha/2)*100) / boot_mean
+            upper_bound = np.percentile(bootstrapped_means, (1-alpha/2)*100) / boot_mean
+            ranges[alpha] = [lower_bound, upper_bound]
         return 0, ranges
     except Exception as e:
         print("Errore durante il training del modello:", str(e))

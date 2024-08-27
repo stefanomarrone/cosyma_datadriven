@@ -30,6 +30,10 @@ class PredictionResults():
         if flag:
             self.dictionary['rul'] = predicted_rul
             self.dictionary['deviations'] = training_results.getRow(labels[counter])
+            for key in self.dictionary['deviations'].keys():
+                temp = list(self.dictionary['deviations'][key])
+                temp = list(map(lambda x: predicted_rul * x, temp))
+                self.dictionary['deviations'][key] = list(temp)
 
     def getDictionary(self):
         return self.dictionary
