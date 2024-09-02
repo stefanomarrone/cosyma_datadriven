@@ -18,7 +18,7 @@ def inner_train(treq, configuration, csv_filename):
     mongoip = configuration.get('mongo_address')
     mongourl = ('http://' + mongoip + ':' + str(mongoport) + '/ddmodels?identifier=' + str(treq.modelid) +
                 '&version=' + str(treq.modelversion))
-    result = TrainedModel()
+    result = TrainedModel()#ciao
     result.addModel(trained_model[0])
     result.addRanges(trained_model[2])
     result.addCartID(cartid)
