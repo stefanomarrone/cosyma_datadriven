@@ -37,3 +37,48 @@ Per poter utilizzare i dati riassumendo basta:
 3 - lanciare prima il file di training (Training.py) in modo da creare dei modelli e salvare in particolare il modello con migliori prestazioni;
 4 - lanciare il file di testing (Testing.py).
 
+## API description 
+* **POST /train**: train a model. As input the endpoints receive a JSON file like:
+
+```
+  {
+  "modelid": 1,
+  "modelversion": 1,
+  "trolleyids": [
+    "IFC0000950_2023410001",
+    "IFC0000950_2023410020",
+    "IFC0000950_2023410023"
+  ],
+  "start": "2024-03-04T16:32:29Z",
+  "end": "2024-03-06T16:32:29Z"
+  } 
+```
+
+where the following information are provided:
+* *modelid* - integer: identifier of the model to store on the KB;
+* *modelversion* - integer: version of the model to store on the KB;
+* *trolleyids* - list of strings: number of the part/serial numbers identifying the trolleys on which the model is to train;
+* *start* - date (in iso format): starting date of the analysis period: 
+* *end* - date (in iso format): ending date of the analysis period.
+
+
+* **POST /predict**: execute a model over a set of trolleys. It accepts the following JSON file.
+
+```
+  {
+  "modelid": 1,
+  "modelversion": 1,
+  "trolleyids": [
+    "IFC0000950_2023410023"
+  ],
+  "start": "2024-03-04T16:32:29Z",
+  "end": "2024-03-06T16:32:29Z"
+  } 
+```
+
+where the following information are provided:
+* *modelid* - integer: identifier of the model to retrieve from the KB;
+* *modelversion* - integer: version of the model to retrieve from the KB;
+* *trolleyids* - list of strings: number of the part/serial numbers identifying the trolleys on which the model is to test;
+* *start* - date (in iso format): starting date of the analysis period: 
+* *end* - date (in iso format): ending date of the analysis period.
